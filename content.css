@@ -1,0 +1,89 @@
+/*
+  Muted Web - Sensory Reduction Style Sheet
+  Designed to target hyper-stimulating, volatile, and interactive layouts.
+  Enforces 85% grayscale, typography standardization, and disables transitions/animations.
+*/
+
+/* 1. Global Visual Harmonization & Grayscale Filter */
+html, body {
+  filter: grayscale(85%) !important;
+  background-color: #f7f7f7 !important; /* Soft, warm, non-harsh background */
+  color: #333333 !important; /* Soft dark text */
+  scroll-behavior: auto !important; /* Disable smooth scrolling which can feel floating/laggy */
+}
+
+/* Apply grayscale to media elements and interactive embeds */
+img, svg, video, iframe, embed, object, canvas {
+  filter: grayscale(85%) !important;
+  opacity: 0.9 !important; /* Soften overall luminance */
+  transition: none !important;
+}
+
+/* 2. Standardize Typography and Reset Custom Styling */
+*, *::before, *::after {
+  /* Force a clean, sans-serif reading typeface */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" !important;
+  /* Nullify dynamic transitions/animations to prevent visual flickering or movement */
+  animation: none !important;
+  transition: none !important;
+  transition-property: none !important;
+}
+
+/* Flatten hierarchy slightly to prevent aggressive styling from causing visual fatigue */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600 !important;
+  color: #111111 !important;
+}
+
+p, span, li, a, td, th, label {
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* 3. Forcibly Disable Interactive Visual Shifts & Hover Scaling */
+*:hover {
+  transform: none !important;
+  scale: 1 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* Remove typical flashy background changes on hover, keeping them subtle */
+a:hover, button:hover {
+  filter: brightness(0.9) !important;
+}
+
+/* 4. Disable High-Stimulus Elements and Layout Volatility */
+marquee, blink {
+  display: none !important;
+}
+
+/* Force standard cursors to prevent hyper-stimulating hover pointers */
+* {
+  cursor: default !important;
+}
+a, button, select, input, textarea, [role="button"] {
+  cursor: pointer !important;
+}
+
+/* Disable drag operations visually and remove pointer-event stimulation from Canvas */
+canvas {
+  pointer-events: none !important; /* Canvas scripts won't receive mouse coordinates */
+  user-select: none !important;
+}
+
+/* 5. Override Physics Layout Shifts (Enforce dynamic stability via CSS fallback) */
+.muted-web-flattened {
+  position: static !important;
+  transform: none !important;
+  margin: 0 auto !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  float: none !important;
+  display: block !important;
+  max-width: 100% !important;
+}
