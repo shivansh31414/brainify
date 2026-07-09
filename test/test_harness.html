@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Muted Web Extension - Test Harness</title>
+  
+  <script>
+    // Simulate extension injecting scripts/styles at document_start
+    const urlParams = new URLSearchParams(window.location.search);
+    const isMuted = urlParams.get('mute') === 'true';
+    if (isMuted) {
+      // 1. Inject content.css
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '../content.css';
+      document.head.appendChild(link);
+
+      // 2. Inject content.js synchronously so it runs before body scripts
+      document.write('<script src="../content.js"><\/script>');
+    }
+  </script>
+
+  <style>
+    /* Styling for the test page interface itself */
+    :root {
+      --bg-primary: #121214;
+      --bg-card: #1a1a1e;
+      --border-color: #2e2e36;
+      --text-main: #f0f0f5;
+      --text-muted: #a0a0b0;
+      --accent: #5e5ce6;
+      --accent-success: #30d158;
+      --accent-warning: #ff9f0a;
+    }
+
+    body.harness-ui {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    header {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-badge.muted {
+      background-color: rgba(48, 209, 88, 0.2);
+      color: var(--accent-success);
+      border: 1px solid var(--accent-success);
+    }
+
+    .status-badge.unmuted {
+      background-color: rgba(255, 159, 10, 0.2);
+      color: var(--accent-warning);
+      border: 1px solid var(--accent-warning);
+    }
+
+    .toggle-btn {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .toggle-btn:hover {
+      background-color: #4a48b8;
+      transform: translateY(-1px);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Target demo styles */
+    .demo-canvas {
+      background-color: #000;
+      width: 100%;
+      height: 150px;
+      border-radius: 8px;
+    }
+
+    .number-display {
+      font-family: monospace;
+      font-size: 24px;
+      color: var(--accent-success);
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .interactive-zone {
+      background-color: #24242b;
+      border: 2px dashed var(--border-color);
+      height: 100px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: crosshair;
+    }
+
+    .jitter-box {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      border-radius: 8px;
+      align-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+    }
+
+    /* CSS animation test */
+    .spinning-box {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #1fa2ff, #12d8fa, #a6ffcb);
+      border-radius: 8px;
+      align-self: center;
+      animation: spin 3s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hover-scale-box {
+      padding: 12px;
+      background-color: #2a2a30;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .hover-scale-box:hover {
+      transform: scale(1.15);
+      box-shadow: 0 10px 20px rgba(94, 92, 230, 0.4);
+      background-color: #35353d;
+    }
+  </style>
+</head>
+<body class="harness-ui">
+
+  <div class="container">
+    <header>
+      <div>
+        <h1 style="margin: 0; font-size: 24px;">Muted Web Test Harness</h1>
+        <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 14px;">
+          Simulating hyper-stimulating and noisy UI patterns to test sensory reduction extension code.
+        </p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span id="mutedStatusBadge" class="status-badge">Checking...</span>
+        <button id="toggleMuteBtn" class="toggle-btn">Toggle Extension</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- 1. Canvas Physics & RAF -->
+      <div class="card">
+        <h2>🚫 1. Physics & Render Freezing</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+          Uses <code>requestAnimationFrame</code> loop to bounce particles. (Should freeze and hide canvas in Muted mode).
+        </p>
+        <canvas id="physicsCanvas" class="demo-canvas"></canvas>
+      </div>
+
+      <!-- 2. Timer Throttling -->
+      <div class="card">
+        <h2>⏱️ 2. Timer Throttling</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+          <strong>setInterval (20ms):</strong> Fast count. (Blocked entirely in Muted).<br>
+          <strong>setTimeout chain (10ms):</strong> Cascading delay. (Throttled to 100ms in Muted).
+        </p>
+        <div>
+          <div style="font-size: 12px; margin-bottom: 4px;">Interval Counter (20ms):</div>
+          <div id="intervalCounter" class="number-display">0</div>
+        </div>
+        <div>
+          <div style="font-size: 12px; margin-bottom: 4px;">Timeout Cascader (10ms -> 100ms):</div>
+          <div id="timeoutCounter" class="number-display">0</div>
+        </div>
+      </div>
+
+      <!-- 3. Event Decoupling -->
+      <div class="card">
+        <h2>🔌 3. Event Decoupling</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+          Listens to global <code>mousemove</code> on <code>window</code>. (Blocked on global targets in Muted).
+        </p>
+        <div id="moveZone" class="interactive-zone">
+          Hover/move cursor here
+        </div>
+        <div style="font-size: 12px; display: flex; justify-content: space-between;">
+          <span>Window Mouse Pos: <strong id="windowMousePos">N/A</strong></span>
+          <span>Inline Listener: <strong id="inlineListenerMsg">Inactive</strong></span>
+        </div>
+      </div>
+
+      <!-- 4. Dynamic Stability -->
+      <div class="card">
+        <h2>📐 4. Dynamic Stability & Layout Flattening</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+          Rapidly updates styling inline via script (every 50ms). (MutationObserver should strip inline styles, add flattening class).
+        </p>
+        <div id="dynamicJitterBox" class="jitter-box">Jitter</div>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button id="startJitterBtn" class="toggle-btn" style="background-color: #3a3a44;">Start Style Mutations</button>
+          <button id="stopJitterBtn" class="toggle-btn" style="background-color: #3a3a44;">Stop</button>
+        </div>
+      </div>
+
+      <!-- 5. Visual Neutralization -->
+      <div class="card">
+        <h2>🎨 5. Visual & Typography</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+          Testing animations, gradients, hover states, fonts. (Should become grayscale, flat fonts, no hover scale, no rotation).
+        </p>
+        <div style="display: flex; justify-content: space-around; align-items: center; min-height: 80px;">
+          <div class="spinning-box" title="CSS Animation"></div>
+          <div class="hover-scale-box">
+            Hover to Zoom
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set Status Badge and Toggle Action
+    const badge = document.getElementById('mutedStatusBadge');
+    if (isMuted) {
+      badge.textContent = "Extension: Active";
+      badge.className = "status-badge muted";
+    } else {
+      badge.textContent = "Extension: Inactive";
+      badge.className = "status-badge unmuted";
+    }
+
+    document.getElementById('toggleMuteBtn').addEventListener('click', () => {
+      window.location.search = `?mute=${!isMuted}`;
+    });
+
+    // 1. requestAnimationFrame loop (Physics Canvas)
+    const canvas = document.getElementById('physicsCanvas');
+    const ctx = canvas.getContext('2d');
+    let x = 50, y = 50, dx = 2, dy = 1.5, radius = 10;
+    
+    function animate() {
+      // Clear canvas
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw ball
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff9f0a';
+      ctx.fill();
+      ctx.closePath();
+      
+      // Bounce logic
+      if (x + dx > canvas.width - radius || x + dx < radius) dx = -dx;
+      if (y + dy > canvas.height - radius || y + dy < radius) dy = -dy;
+      x += dx;
+      y += dy;
+      
+      requestAnimationFrame(animate);
+    }
+    // Start RAF animation loop
+    requestAnimationFrame(animate);
+
+    // 2. Timers (setInterval and setTimeout)
+    let intCount = 0;
+    const intervalId = setInterval(() => {
+      intCount++;
+      document.getElementById('intervalCounter').textContent = intCount;
+    }, 20); // 20ms delay is < 100ms, should be blocked in Muted mode
+
+    let timeoutCount = 0;
+    function timeoutLoop() {
+      timeoutCount++;
+      document.getElementById('timeoutCounter').textContent = timeoutCount;
+      // Re-schedule high-frequency timeout (10ms)
+      setTimeout(timeoutLoop, 10);
+    }
+    // Start timeout loop
+    setTimeout(timeoutLoop, 10);
+
+    // 3. High-Frequency Events
+    // Global listener on window
+    window.addEventListener('mousemove', (e) => {
+      document.getElementById('windowMousePos').textContent = `${e.clientX}, ${e.clientY}`;
+    });
+
+    // Inline event registration
+    window.onmousemove = (e) => {
+      document.getElementById('inlineListenerMsg').textContent = `Tracking (${e.clientX})`;
+    };
+
+    // 4. Dynamic Stability (Style Mutations)
+    const jitterBox = document.getElementById('dynamicJitterBox');
+    let jitterInterval = null;
+    let jitterCounter = 0;
+
+    function startJitter() {
+      if (jitterInterval) return;
+      jitterInterval = setInterval(() => {
+        jitterCounter++;
+        // Generate random translation and bg-color
+        const randomX = Math.floor(Math.random() * 20) - 10;
+        const randomY = Math.floor(Math.random() * 20) - 10;
+        const randomRotate = Math.floor(Math.random() * 30) - 15;
+        const colors = ['#ff416c', '#8a2be2', '#20b2aa', '#ff8c00', '#ff00ff'];
+        const randomColor = colors[jitterCounter % colors.length];
+        
+        // Mutate inline styles directly to trigger MutationObserver Heuristics
+        jitterBox.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
+        jitterBox.style.backgroundColor = randomColor;
+      }, 50); // Updates style every 50ms, which is very high frequency (>2 updates in 500ms)
+      
+      document.getElementById('startJitterBtn').textContent = "Mutating...";
+    }
+
+    function stopJitter() {
+      if (jitterInterval) {
+        clearInterval(jitterInterval);
+        jitterInterval = null;
+      }
+      document.getElementById('startJitterBtn').textContent = "Start Style Mutations";
+    }
+
+    document.getElementById('startJitterBtn').addEventListener('click', startJitter);
+    document.getElementById('stopJitterBtn').addEventListener('click', stopJitter);
+  </script>
+</body>
+</html>
